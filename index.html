@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Cookie Party 2019</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="Cookie Collective">
+	<meta name="description" content="Digital art festival on October 26, 2019 in Paris, France.">
+		
+	<meta property="og:description" content="Digital art festival on October 26, 2019 in Paris, France.">
+	<meta property="og:image" content="/logo.jpg">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Cookie Party 2019">
+	<meta property="og:url" content="https://2019.cookie.paris/">
+
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:description" content="Digital art festival on October 26, 2019 in Paris, France.">
+	<meta name="twitter:image" content="/logo.jpg">
+	<meta name="twitter:title" content="Cookie Party 2019">
+	<meta name="twitter:site" content="@CookieDemoparty">
+
+	<link rel="stylesheet" href="style.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:400&display=swap" rel="stylesheet">
+	<link rel="shortcut icon" href="title-icon.png" />
+</head>
+<body>
+	<div class="overlay">TEXT</div>
+	<canvas id="canvas"></canvas>
+	<script src="twgl-full.min.js"></script>
+	<script id="vs" type="notjs">
+precision mediump float;
+attribute vec4 position;
+attribute vec4 seed;
+uniform mat4 viewProjection;
+uniform float time;
+uniform vec2 resolution;
+mat2 rotation (float a) { float c=cos(a),s=sin(a); return mat2(c,-s,s,c); }
+void main () {
+	vec4 pos = position;
+	float t = time * 0.4 + seed.w * 3.1415 * 2.;
+	float wave = mod(time * 0.05 + seed.w, 1.0);
+	float fade = smoothstep(0.0,0.1,wave)*smoothstep(1.0,0.9,wave);
+	pos.xz *= rotation(t);
+	pos.yz *= rotation(t);
+	pos.yx *= rotation(t);
+	pos.xyz *= 0.15 + seed.z * 0.05;
+	pos.xyz *= fade;
+	pos.xyz += normalize(seed.xyz) * (0.5 + wave) * 4. * vec3(resolution.x/resolution.y,1,1);
+	//pos.y -= seed.w * 3.;
+	gl_Position = viewProjection * pos;
+	gl_PointSize = 4.0;
+}
+	</script>
+	<script id="fs" type="notjs">
+precision mediump float;
+uniform float time;
+uniform vec4 color;
+void main() {
+	gl_FragColor = vec4(color);
+}
+	</script>
+	<script id="vsScreen" type="notjs">
+precision mediump float;
+attribute vec4 position;
+uniform float time;
+uniform vec2 resolution;
+varying vec2 vUV;
+void main () {
+	vUV = position.xy * 0.5 + 0.5;
+	gl_Position = vec4(position.xy, 0., 1.);
+}
+	</script>
+	<script id="fsScreen" type="notjs">
+precision mediump float;
+uniform float time;
+uniform sampler2D texture;
+varying vec2 vUV;
+void main() {
+	gl_FragColor = vec4(vUV,0,1);
+}
+	</script>
+	<script src="webgl.js"></script>
+</body>
+</html>
